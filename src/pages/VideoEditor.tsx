@@ -6,6 +6,7 @@ import type { Settings } from "../lib/settings";
 import type { JobsApi } from "../lib/jobs";
 import { VIDEO_EXT, baseName, formatDuration, formatTime, parseTime } from "../lib/format";
 import { useIncoming, type Incoming } from "../lib/incoming";
+import { Slider } from "../components/Slider";
 
 interface EditClip {
   key: string;
@@ -17,6 +18,17 @@ interface EditClip {
 
 /** Formatos que el reproductor integrado puede mostrar (el resto igual se edita, sin vista previa). */
 const PLAYABLE = ["mp4", "m4v", "webm", "mov"];
+
+const TRANSITIONS = [
+  { v: "", label: "Corte directo" },
+  { v: "fade", label: "Fundido" },
+  { v: "fadeblack", label: "Fundido a negro" },
+  { v: "dissolve", label: "Disolver" },
+  { v: "wipeleft", label: "Barrido" },
+  { v: "slideleft", label: "Deslizar" },
+  { v: "smoothleft", label: "Deslizar suave" },
+  { v: "circleopen", label: "Círculo" },
+];
 
 function TimeInput({ value, onChange }: { value: number; onChange: (v: number) => void }) {
   const [text, setText] = useState(formatTime(value));
@@ -48,6 +60,8 @@ export function VideoEditorPage({
   const [sel, setSel] = useState<string | null>(null);
   const [height, setHeight] = useState(0);
   const [quality, setQuality] = useState<Quality>("medium");
+  const [transition, setTransition] = useState("");
+  const [transitionDur, setTransitionDur] = useState(1);
   const [error, setError] = useState("");
   const video = useRef<HTMLVideoElement>(null);
 
@@ -135,7 +149,10 @@ export function VideoEditorPage({
     if (selected && video.current) video.current.currentTime = selected.start;
   }, [sel]); // eslint-disable-line react-hooks/exhaustive-deps
 
-  const total = clips.reduce((acc, c) => acc + (c.end - c.start), 0);
+  const total =
+    clips.reduce((acc, c) => acc + (c.end - c.start), 0) - (transition ? transitionDur * Math.max(0, clips.length - 1) : 0);
+  const shortest = Math.min(...clips.map((c) => c.end - c.start));
+  const transitionTooLong = !!transition && clips.length > 1 && shortest <= transitionDur * 1.05;
 
   const exportVideo = async () => {
     const id = crypto.randomUUID();
@@ -146,6 +163,8 @@ export function VideoEditorPage({
         outDir: settings.outDir,
         height: height || undefined,
         quality,
+        transition: transition || undefined,
+        transitionDuration: transitionDur,
       }),
     );
   };
@@ -259,12 +278,26 @@ export function VideoEditorPage({
             <option value="low">Baja</option>
           </select>
         </label>
+        <label>
+          Transición entre tramos
+          <select value={transition} onChange={(e) => setTransition(e.target.value)}>
+            {TRANSITIONS.map((t) => (
+              <option key={t.v} value={t.v}>
+                {t.label}
+              </option>
+            ))}
+          </select>
+        </label>
+        {transition && (
+          <Slider label="Duración" min={0.2} max={3} step={0.1} value={transitionDur} onChange={setTransitionDur} format={(v) => `${v.toFixed(1)} s`} />
+        )}
       </div>
+      {transitionTooLong && <p className="error-text">Hay un tramo más corto que la transición: acortala o alargá el tramo.</p>}
       <div className="row end">
         <span className="hint">
           Duración final: {formatDuration(total) || "0:00"} · Guardar en: {settings.outDir || "…"}
         </span>
-        <button className="primary" disabled={clips.length === 0 || !settings.outDir} onClick={exportVideo}>
+        <button className="primary" disabled={clips.length === 0 || !settings.outDir || transitionTooLong} onClick={exportVideo}>
           Exportar MP4
         </button>
       </div>

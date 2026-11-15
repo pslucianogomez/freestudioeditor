@@ -81,6 +81,71 @@ export interface AudioEditRequest {
   fadeOut: number;
   volumeDb: number;
   normalize: boolean;
+  denoise: "" | "light" | "strong";
+  speed: number;
+  pitch: number;
+}
+
+export interface JoinAudioRequest {
+  id: string;
+  inputs: string[];
+  outDir: string;
+  format: string;
+  bitrate?: number;
+  crossfade: number;
+}
+
+export type Position = "tl" | "tr" | "bl" | "br" | "center";
+
+export interface TextMark {
+  text: string;
+  sizePct: number;
+  position: Position;
+  opacity: number;
+  color: string;
+}
+
+export interface LogoMark {
+  path: string;
+  widthPct: number;
+  position: Position;
+  opacity: number;
+}
+
+export interface PhotoEditRequest {
+  id: string;
+  input: string;
+  outDir: string;
+  format: "same" | "jpg" | "png" | "webp";
+  quality: number;
+  crop?: [number, number, number, number];
+  rotate?: "cw" | "ccw" | "180";
+  flipH: boolean;
+  flipV: boolean;
+  brightness: number;
+  contrast: number;
+  saturation: number;
+  sharpen: number;
+  text?: TextMark;
+  logo?: LogoMark;
+}
+
+export interface VideoFxRequest {
+  id: string;
+  input: string;
+  outDir: string;
+  speed: number;
+  audio: "keep" | "mute" | "replace" | "mix";
+  audioFile?: string;
+  musicVolume?: number;
+  aspect?: string;
+  aspectMode?: "crop" | "pad" | "blur";
+  subtitles?: string;
+  stabilize: boolean;
+  brightness: number;
+  contrast: number;
+  saturation: number;
+  quality?: Quality;
 }
 
 export interface RecordRequest {
@@ -142,9 +207,21 @@ export const api = {
   mediaInfo: (path: string) => invoke<MediaInfo>("media_info", { path }),
   waveform: (path: string, points: number) =>
     invoke<{ peaks: number[]; duration: number }>("waveform", { path, points }),
-  joinClips: (req: { id: string; clips: Clip[]; outDir: string; height?: number; quality?: Quality }) =>
-    invoke<void>("join_clips", { req }),
+  joinClips: (req: {
+    id: string;
+    clips: Clip[];
+    outDir: string;
+    height?: number;
+    quality?: Quality;
+    transition?: string;
+    transitionDuration?: number;
+  }) => invoke<void>("join_clips", { req }),
   audioEdit: (req: AudioEditRequest) => invoke<void>("audio_edit", { req }),
+  joinAudio: (req: JoinAudioRequest) => invoke<void>("join_audio", { req }),
+  videoFx: (req: VideoFxRequest) => invoke<void>("video_fx", { req }),
+  photoEdit: (req: PhotoEditRequest) => invoke<void>("photo_edit", { req }),
+  /** Genera la vista previa exacta y devuelve la ruta del archivo temporal. */
+  photoPreview: (req: PhotoEditRequest) => invoke<string>("photo_preview", { req }),
   listAudioDevices: () => invoke<string[]>("list_audio_devices"),
   recordScreen: (req: RecordRequest) => invoke<void>("record_screen", { req }),
   stopRecording: (id: string) => invoke<void>("stop_recording", { id }),

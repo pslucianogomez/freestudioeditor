@@ -6,6 +6,8 @@ import { VideoEditorPage } from "./pages/VideoEditor";
 import { AudioEditorPage } from "./pages/AudioEditor";
 import { RecordPage } from "./pages/Record";
 import { PhotosPage } from "./pages/Photos";
+import { PhotoEditorPage } from "./pages/PhotoEditor";
+import { VideoEffectsPage } from "./pages/VideoEffects";
 import { SettingsPage } from "./pages/SettingsPage";
 import { JobList } from "./components/JobList";
 import { useJobs } from "./lib/jobs";
@@ -13,26 +15,28 @@ import { useSettings } from "./lib/settings";
 import { AUDIO_EXT, IMAGE_EXT, extOf } from "./lib/format";
 import type { Incoming } from "./lib/incoming";
 
-type Tab = "download" | "convert" | "video" | "audio" | "record" | "photos" | "settings";
+type Tab = "download" | "convert" | "video" | "fx" | "audio" | "photoedit" | "photos" | "record" | "settings";
 
 const TABS: { id: Tab; label: string }[] = [
   { id: "download", label: "Descargar" },
   { id: "convert", label: "Convertir" },
   { id: "video", label: "Editor de video" },
+  { id: "fx", label: "Efectos de video" },
   { id: "audio", label: "Editor de audio" },
+  { id: "photoedit", label: "Editor de fotos" },
+  { id: "photos", label: "Fotos por lote" },
   { id: "record", label: "Grabar pantalla" },
-  { id: "photos", label: "Fotos" },
   { id: "settings", label: "Ajustes" },
 ];
 
 /** Herramientas que aceptan archivos soltados. */
-const DROP_TARGETS: Tab[] = ["convert", "video", "audio", "photos"];
+const DROP_TARGETS: Tab[] = ["convert", "video", "fx", "audio", "photoedit", "photos"];
 
 /** A qué herramienta van los archivos soltados, según dónde estás y qué soltaste. */
 function routeDrop(tab: Tab, paths: string[]): Tab {
   const allImages = paths.every((p) => IMAGE_EXT.includes(extOf(p)));
-  if (allImages) return "photos";
-  if (tab === "photos") return "convert";
+  if (allImages) return tab === "photoedit" || (tab !== "photos" && paths.length === 1) ? "photoedit" : "photos";
+  if (tab === "photos" || tab === "photoedit") return "convert";
   if (DROP_TARGETS.includes(tab)) return tab;
   const allAudio = paths.every((p) => AUDIO_EXT.includes(extOf(p)));
   return allAudio && paths.length === 1 ? "audio" : "convert";
@@ -84,7 +88,9 @@ export default function App() {
         {tab === "download" && <DownloadPage settings={settings} jobs={jobs} />}
         {tab === "convert" && <ConvertPage settings={settings} jobs={jobs} incoming={inc("convert")} />}
         {tab === "video" && <VideoEditorPage settings={settings} jobs={jobs} incoming={inc("video")} />}
+        {tab === "fx" && <VideoEffectsPage settings={settings} jobs={jobs} incoming={inc("fx")} />}
         {tab === "audio" && <AudioEditorPage settings={settings} jobs={jobs} incoming={inc("audio")} />}
+        {tab === "photoedit" && <PhotoEditorPage settings={settings} jobs={jobs} incoming={inc("photoedit")} />}
         {tab === "record" && <RecordPage settings={settings} jobs={jobs} />}
         {tab === "photos" && <PhotosPage settings={settings} jobs={jobs} incoming={inc("photos")} />}
         {tab === "settings" && <SettingsPage settings={settings} update={update} />}

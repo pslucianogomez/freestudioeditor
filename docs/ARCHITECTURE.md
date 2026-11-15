@@ -3,7 +3,8 @@
 ```
 ┌──────────── Interfaz (React, src/) ────────────┐
 │ Descargar · Convertir · Editor de video ·      │
-│ Editor de audio · Grabar · Fotos · Ajustes     │
+│ Efectos de video · Editor de audio · Editor de │
+│ fotos · Fotos por lote · Grabar · Ajustes      │
 └──────────── invoke() ▲ eventos "job" ──────────┘
                │       │
 ┌──────────── Núcleo (Rust, src-tauri/src/) ─────┐
@@ -11,8 +12,11 @@
 │ download.rs descargas y vista previa (yt-dlp)  │
 │ convert.rs  conversión y fotos                 │
 │ media.rs    datos de archivo, forma de onda    │
-│ editor.rs   unir/cortar video                  │
-│ audio.rs    editor de audio                    │
+│ filters.rs  helpers de filtros (escapes, etc.) │
+│ editor.rs   unir/cortar video, transiciones    │
+│ effects.rs  efectos de video                   │
+│ audio.rs    editor de audio y unir audios      │
+│ photo_edit.rs editor de fotos + vista previa   │
 │ record.rs   grabación de pantalla              │
 └──────┬───────────────────────────┬─────────────┘
        ▼                           ▼
@@ -30,3 +34,5 @@
 - **Arrastrar y soltar**: evento nativo de Tauri (`onDragDropEvent`) en `App.tsx`, que decide a qué herramienta mandar los archivos.
 - **Grabación**: FFmpeg `gdigrab` (pantalla) + `dshow` (micrófono); se detiene mandando `q` por stdin para cerrar el MP4 prolijamente. MP4 fragmentado por si se corta.
 - **Pruebas**: `cargo test` corre las unitarias; `real_ffmpeg.rs` genera medios sintéticos y prueba cada herramienta contra el FFmpeg real (se saltean si no está descargado).
+- **Rutas dentro de filtros**: `filters::filter_path` escapa `:` y comillas para filtros como `subtitles=` o `drawtext=textfile=`. Los subtítulos se copian antes a un nombre simple en la carpeta temporal, y el texto de las marcas de agua va en un archivo (`textfile`) para no tener que escapar el texto.
+- **Vista previa de fotos**: `photo_preview` corre el mismo comando que la exportación sobre una copia chica (máx. 1200 px) en la carpeta temporal, así lo que se ve es exactamente lo que se guarda.

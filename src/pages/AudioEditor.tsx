@@ -6,6 +6,8 @@ import type { Settings } from "../lib/settings";
 import type { JobsApi } from "../lib/jobs";
 import { MEDIA_EXT, baseName, extOf, formatTime } from "../lib/format";
 import { useIncoming, type Incoming } from "../lib/incoming";
+import { Slider } from "../components/Slider";
+import { AudioJoin } from "../components/AudioJoin";
 
 const POINTS = 1600;
 const FORMATS = ["mp3", "m4a", "ogg", "opus", "wav", "flac"];
@@ -35,11 +37,15 @@ export function AudioEditorPage({
   const [playhead, setPlayhead] = useState(0);
   const [playing, setPlaying] = useState(false);
 
+  const [tool, setTool] = useState<"edit" | "join">("edit");
   const [mode, setMode] = useState<Mode>("all");
   const [fadeIn, setFadeIn] = useState(0);
   const [fadeOut, setFadeOut] = useState(0);
   const [volume, setVolume] = useState(0);
   const [normalize, setNormalize] = useState(false);
+  const [denoise, setDenoise] = useState<"" | "light" | "strong">("");
+  const [speed, setSpeed] = useState(1);
+  const [pitch, setPitch] = useState(0);
   const [format, setFormat] = useState("mp3");
   const [bitrate, setBitrate] = useState(192);
 
@@ -69,7 +75,14 @@ export function AudioEditorPage({
       setLoading(false);
     }
   };
-  useIncoming(incoming, (paths) => paths[0] && load(paths[0]));
+  // Archivos soltados: uno solo se edita; varios (o con el modo "Unir" abierto) van a la lista para unir.
+  const [joinIncoming, setJoinIncoming] = useState<Incoming | null>(null);
+  useIncoming(incoming, (paths) => {
+    if (paths.length > 1 || tool === "join") {
+      setTool("join");
+      setJoinIncoming({ paths, seq: Date.now() });
+    } else if (paths[0]) load(paths[0]);
+  });
 
   const pick = async () => {
     const r = await open({ multiple: false, filters: [{ name: "Audio o video", extensions: MEDIA_EXT }] });
@@ -169,7 +182,7 @@ export function AudioEditorPage({
   };
 
   const resultDuration =
-    mode === "keep" && sel ? sel[1] - sel[0] : mode === "delete" && sel ? duration - (sel[1] - sel[0]) : duration;
+    (mode === "keep" && sel ? sel[1] - sel[0] : mode === "delete" && sel ? duration - (sel[1] - sel[0]) : duration) / speed;
 
   const exportAudio = async () => {
     if (!file) return;
@@ -189,13 +202,25 @@ export function AudioEditorPage({
         fadeOut,
         volumeDb: volume,
         normalize,
+        denoise,
+        speed,
+        pitch,
       }),
     );
   };
 
+  if (tool === "join") {
+    return (
+      <div className="panel">
+        <AudioHeader tool={tool} setTool={setTool} />
+        <AudioJoin settings={settings} jobs={jobs} incoming={joinIncoming} />
+      </div>
+    );
+  }
+
   return (
     <div className="panel">
-      <h1>Editor de audio</h1>
+      <AudioHeader tool={tool} setTool={setTool} />
       {!file ? (
         <>
           <button className="dropzone" onClick={pick} disabled={loading}>
@@ -275,6 +300,38 @@ export function AudioEditorPage({
 
           <div className="row">
             <label>
+              Ruido de fondo
+              <select value={denoise} onChange={(e) => setDenoise(e.target.value as typeof denoise)}>
+                <option value="">Dejar como está</option>
+                <option value="light">Reducir un poco</option>
+                <option value="strong">Reducir bastante</option>
+              </select>
+            </label>
+            <label>
+              Velocidad
+              <select value={speed} onChange={(e) => setSpeed(Number(e.target.value))}>
+                {[0.5, 0.75, 0.9, 1, 1.1, 1.25, 1.5, 2].map((v) => (
+                  <option key={v} value={v}>
+                    {v === 1 ? "Normal" : `×${v}`}
+                  </option>
+                ))}
+              </select>
+            </label>
+            <Slider
+              label="Tono"
+              min={-12}
+              max={12}
+              step={1}
+              value={pitch}
+              onChange={setPitch}
+              defaultValue={0}
+              format={(v) => (v === 0 ? "original" : `${v > 0 ? "+" : ""}${v} semitonos`)}
+            />
+          </div>
+          <p className="hint">La velocidad no cambia el tono, y el tono no cambia la velocidad. "Reducir ruido" sirve para zumbidos y soplidos constantes (ventilador, aire acondicionado).</p>
+
+          <div className="row">
+            <label>
               Formato
               <select value={format} onChange={(e) => setFormat(e.target.value)}>
                 {FORMATS.map((f) => (
@@ -306,6 +363,22 @@ export function AudioEditorPage({
           </div>
         </>
       )}
+    </div>
+  );
+}
+
+function AudioHeader({ tool, setTool }: { tool: "edit" | "join"; setTool: (t: "edit" | "join") => void }) {
+  return (
+    <div className="row end">
+      <h1>Editor de audio</h1>
+      <div className="segmented">
+        <button className={tool === "edit" ? "on" : ""} onClick={() => setTool("edit")}>
+          Editar un audio
+        </button>
+        <button className={tool === "join" ? "on" : ""} onClick={() => setTool("join")}>
+          Unir varios audios
+        </button>
+      </div>
     </div>
   );
 }
