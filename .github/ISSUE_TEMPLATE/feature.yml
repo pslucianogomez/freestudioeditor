@@ -1,0 +1,14 @@
+name: Proponer una función
+description: Una idea para mejorar OpenMedia
+labels: [enhancement]
+body:
+  - type: textarea
+    id: problem
+    attributes:
+      label: Qué problema resuelve
+    validations:
+      required: true
+  - type: textarea
+    id: idea
+    attributes:
+      label: Cómo te imaginás que funcione

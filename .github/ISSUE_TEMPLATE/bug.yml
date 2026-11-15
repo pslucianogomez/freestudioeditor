@@ -1,0 +1,28 @@
+name: Reportar un error
+description: Algo no funciona como debería
+labels: [bug]
+body:
+  - type: textarea
+    id: what
+    attributes:
+      label: Qué pasó
+      description: Qué hiciste, qué esperabas y qué pasó.
+    validations:
+      required: true
+  - type: input
+    id: version
+    attributes:
+      label: Versión de OpenMedia y de yt-dlp (Ajustes → Motores)
+  - type: input
+    id: os
+    attributes:
+      label: Sistema operativo
+      placeholder: Windows 11 23H2
+  - type: textarea
+    id: log
+    attributes:
+      label: Mensaje de error
+      render: text
+  - type: markdown
+    attributes:
+      value: "No pegues enlaces a contenido con copyright ni datos personales. Si un sitio dejó de funcionar, probá primero 'Actualizar yt-dlp'."

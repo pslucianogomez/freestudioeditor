@@ -1,0 +1,11 @@
+node_modules/
+dist/
+src-tauri/target/
+src-tauri/gen/
+# Binarios externos: se bajan con `npm run fetch-binaries`
+src-tauri/binaries/*
+!src-tauri/binaries/.gitkeep
+# Material de investigación privado (no se publica)
+replica/
+.env
+*.log
