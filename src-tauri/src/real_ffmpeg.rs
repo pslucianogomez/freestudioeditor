@@ -47,7 +47,7 @@ struct Fixtures {
 }
 
 fn fixtures(ff: &Path, name: &str) -> Fixtures {
-    let dir = std::env::temp_dir().join(format!("openmedia-test-{name}"));
+    let dir = std::env::temp_dir().join(format!("freeeditorstudio-test-{name}"));
     let _ = std::fs::remove_dir_all(&dir);
     std::fs::create_dir_all(&dir).unwrap();
     let p = |f: &str| dir.join(f).to_string_lossy().into_owned();
@@ -167,7 +167,7 @@ fn real_photos() {
 #[test]
 fn real_record_two_seconds() {
     let Some(ff) = ffmpeg() else { return };
-    let dir = std::env::temp_dir().join("openmedia-test-record");
+    let dir = std::env::temp_dir().join("freeeditorstudio-test-record");
     let _ = std::fs::create_dir_all(&dir);
     let out = dir.join("rec.mp4").to_string_lossy().into_owned();
     let r = RecordRequest { id: "t".into(), out_dir: dir.to_string_lossy().into(), name: "rec".into(), fps: 15, audio_device: None, cursor: true };

@@ -1,9 +1,9 @@
-# OpenMedia
+# FreeEditorStudio
 
 **Descargá, convertí y editá video y audio. Libre, gratis, sin marcas de agua ni límites.**
 App de escritorio para Windows (Mac y Linux en el roadmap), construida sobre [yt-dlp](https://github.com/yt-dlp/yt-dlp) y [FFmpeg](https://ffmpeg.org).
 
-> *OpenMedia es un nombre provisorio.*
+> *FreeEditorStudio es un nombre provisorio.*
 
 ## Qué hace hoy
 
@@ -21,7 +21,7 @@ Lo que viene está en [docs/ROADMAP.md](docs/ROADMAP.md).
 
 ## ¿Necesito iniciar sesión?
 
-No. Los videos públicos se descargan sin cuenta. Solo hace falta para videos privados, con restricción de edad o de miembros, o cuando el sitio pide "confirmar que no sos un bot". En ese caso, en **Ajustes → Cookies del navegador** la app usa la sesión que ya tenés abierta en tu navegador. **OpenMedia nunca pide ni guarda contraseñas.**
+No. Los videos públicos se descargan sin cuenta. Solo hace falta para videos privados, con restricción de edad o de miembros, o cuando el sitio pide "confirmar que no sos un bot". En ese caso, en **Ajustes → Cookies del navegador** la app usa la sesión que ya tenés abierta en tu navegador. **FreeEditorStudio nunca pide ni guarda contraseñas.**
 
 ## Uso responsable
 
@@ -62,4 +62,4 @@ Las versiones se publican solas: al subir un tag `v*`, GitHub Actions compila el
 
 ### English
 
-OpenMedia is a free, open-source desktop app to download, convert and lightly edit video and audio, built on yt-dlp and FFmpeg. No watermarks, no limits, no account needed for public videos. See the Spanish sections above for build steps (`npm install`, `npm run fetch-binaries`, `npm run tauri dev`). Contributions in English or Spanish are welcome.
+FreeEditorStudio is a free, open-source desktop app to download, convert and lightly edit video and audio, built on yt-dlp and FFmpeg. No watermarks, no limits, no account needed for public videos. See the Spanish sections above for build steps (`npm install`, `npm run fetch-binaries`, `npm run tauri dev`). Contributions in English or Spanish are welcome.

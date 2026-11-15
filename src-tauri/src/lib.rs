@@ -1,4 +1,4 @@
-//! Núcleo de OpenMedia. Cada módulo es una herramienta:
+//! Núcleo de FreeEditorStudio. Cada módulo es una herramienta:
 //!
 //! - `jobs`     lanzar procesos, progreso, cancelar (compartido)
 //! - `download` descargas y vista previa (yt-dlp)

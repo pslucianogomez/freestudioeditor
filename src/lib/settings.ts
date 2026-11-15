@@ -6,7 +6,7 @@ export interface Settings {
   cookiesBrowser: string; // "" = no usar cookies
 }
 
-const KEY = "openmedia.settings";
+const KEY = "freeeditorstudio.settings";
 
 function load(): Partial<Settings> {
   try {

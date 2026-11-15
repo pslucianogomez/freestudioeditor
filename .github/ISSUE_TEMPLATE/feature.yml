@@ -1,5 +1,5 @@
 name: Proponer una función
-description: Una idea para mejorar OpenMedia
+description: Una idea para mejorar FreeEditorStudio
 labels: [enhancement]
 body:
   - type: textarea

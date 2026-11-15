@@ -1,20 +1,28 @@
 # Changelog
 
-## [Sin publicar]
+## [0.1.0] - 2026-11-15
 
-### Agregado
-- Vista previa del enlace con calidades reales y tamaño estimado.
-- Subtítulos completos: idiomas, automáticos, SRT/VTT, incrustar, solo subtítulos.
-- Arrastrar y soltar archivos; botón Pegar.
-- Conversión: resolución, calidad, bitrate, atajos por dispositivo, opciones de GIF, OPUS.
-- Editor de video (unir, recortar, dividir, reordenar).
-- Editor de audio (forma de onda, recortar, borrar tramo, fundidos, volumen, normalizar).
-- Grabador de pantalla con micrófono.
-- Fotos: cambiar tamaño y formato por lote.
-- Pruebas contra FFmpeg real (`cargo test real_`).
+Primera versión pública.
 
-## 0.1.0
-- Descarga de video/audio con yt-dlp (playlists, canales, hasta 4K, cookies opcionales).
-- Conversión con FFmpeg, rotar, espejar y recortar.
-- Cola de trabajos con progreso y cancelación.
-- Build automático del instalador de Windows.
+### Descargar
+- Video o solo audio (MP3, M4A, OPUS, FLAC, WAV) desde YouTube y más de mil sitios, con yt-dlp.
+- Playlists y canales completos, calidades hasta 4K.
+- Vista previa del enlace: miniatura, título, duración y las calidades reales con tamaño estimado.
+- Subtítulos: idiomas del autor o automáticos, SRT o VTT, incrustados en el video o solo los subtítulos.
+- Botón Pegar. Cookies opcionales del navegador para videos que piden sesión.
+
+### Convertir
+- MP4, WebM, MKV, MP3, M4A, OGG, OPUS, WAV, FLAC, GIF animado y fotogramas JPG.
+- Resolución, calidad, bitrate, opciones de GIF y atajos por dispositivo (WhatsApp, celular, TV, web).
+- Rotar, espejar y recortar por tiempo.
+
+### Editar y grabar
+- Editor de video: unir varios videos, recortar, dividir, reordenar, con reproductor.
+- Editor de audio: forma de onda, quedarse con un tramo o borrarlo, fundidos, volumen y normalización.
+- Grabador de pantalla en MP4 con micrófono opcional.
+- Fotos: cambiar tamaño y formato (JPG, PNG, WebP) por lote, con vista de antes y después.
+
+### General
+- Arrastrar y soltar archivos en cualquier parte de la ventana.
+- Cola de trabajos con progreso, cancelación, tamaño final y "abrir carpeta".
+- Actualizar yt-dlp desde la app.

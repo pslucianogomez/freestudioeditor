@@ -72,7 +72,7 @@ export default function App() {
   return (
     <div className="app">
       <nav className="sidebar">
-        <div className="logo">OpenMedia</div>
+        <div className="logo">FreeEditorStudio</div>
         {TABS.map((t) => (
           <button key={t.id} className={tab === t.id ? "nav on" : "nav"} onClick={() => setTab(t.id)}>
             {t.label}

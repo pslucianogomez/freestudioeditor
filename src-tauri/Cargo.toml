@@ -1,12 +1,12 @@
 [package]
-name = "openmedia"
+name = "freeeditorstudio"
 version = "0.1.0"
 description = "Descargar, convertir y editar video y audio. Libre y gratis."
 license = "GPL-3.0-or-later"
 edition = "2021"
 
 [lib]
-name = "openmedia_lib"
+name = "freeeditorstudio_lib"
 crate-type = ["staticlib", "cdylib", "rlib"]
 
 [build-dependencies]

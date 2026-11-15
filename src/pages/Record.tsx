@@ -28,7 +28,7 @@ export function RecordPage({ settings, jobs }: { settings: Settings; jobs: JobsA
     <div className="panel">
       <h1>Grabar pantalla</h1>
       <p className="hint">
-        Graba la pantalla completa en MP4. Podés minimizar OpenMedia mientras grabás; para terminar, volvé y tocá
+        Graba la pantalla completa en MP4. Podés minimizar FreeEditorStudio mientras grabás; para terminar, volvé y tocá
         “Detener”.
       </p>
 
