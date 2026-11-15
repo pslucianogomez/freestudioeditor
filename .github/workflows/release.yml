@@ -1,7 +1,7 @@
 name: Release (Windows)
 
 # Se dispara al subir un tag tipo v0.1.0. Compila el instalador y lo deja
-# como borrador en GitHub Releases.
+# publicado en GitHub Releases (sin pasar por borrador).
 on:
   push:
     tags: ["v*"]
@@ -43,4 +43,4 @@ jobs:
             ## Novedades
 
             Ver [CHANGELOG.md](https://github.com/${{ github.repository }}/blob/${{ github.ref_name }}/CHANGELOG.md).
-          releaseDraft: true
+          releaseDraft: false
