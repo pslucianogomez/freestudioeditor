@@ -1,0 +1,9 @@
+# Revisores asignados automáticamente a cada Pull Request.
+# Formato: <ruta> <usuario o equipo>. La última regla que coincide gana.
+# Al sumar mantenedores, agregalos acá (por ejemplo, alguien que revise solo el núcleo en Rust).
+
+*                       @pslucianogomez
+
+# Cambios sensibles: workflows de GitHub (corren con permisos del repo) y el script que baja binarios.
+/.github/               @pslucianogomez
+/scripts/               @pslucianogomez
