@@ -111,7 +111,7 @@ fn real_join_with_and_without_audio() {
     let segs = segments(&clips, &infos).unwrap();
     let (w, h) = target_size(&infos[0], Some(360));
     let out = fx.dir.join("joined.mp4").to_string_lossy().into_owned();
-    assert_output(&ff, &out, run(&ff, &join_args(&segs, w, h, "28", &out)));
+    assert_output(&ff, &out, run(&ff, &join_args(&segs, w, h, "28", &out, None)));
     let m = info(&ff, Path::new(&out));
     assert_eq!((m.width, m.height), (Some(640), Some(360)));
     assert!(m.has_audio);

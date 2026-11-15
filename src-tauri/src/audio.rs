@@ -1,6 +1,8 @@
 //! Editor de audio: recortar, borrar un tramo, fundidos, volumen y normalizar.
 
+use crate::filters::atempo_chain;
 use crate::jobs::{ffmpeg_base, ffmpeg_progress, output, spawn_job, stem_of, unique_path};
+use crate::media::media_info_blocking;
 use serde::Deserialize;
 use std::path::Path;
 use tauri::AppHandle;
@@ -24,6 +26,37 @@ pub struct AudioEditRequest {
     pub fade_out: f64,
     pub volume_db: f64,
     pub normalize: bool,
+    /// Reducción de ruido de fondo: "" | light | strong
+    #[serde(default)]
+    pub denoise: String,
+    /// 1.0 = normal (0 se toma como 1)
+    #[serde(default)]
+    pub speed: f64,
+    /// Cambio de tono en semitonos (-12 a 12), sin cambiar la velocidad
+    #[serde(default)]
+    pub pitch: f64,
+}
+
+/// Agrega reducción de ruido, velocidad y tono a la cadena `g`. Devuelve el factor de velocidad.
+fn color_chain(g: &mut String, r: &AudioEditRequest) -> f64 {
+    match r.denoise.as_str() {
+        "light" => *g += ",afftdn=nr=12:nf=-40",
+        "strong" => *g += ",afftdn=nr=30:nf=-30",
+        _ => {}
+    }
+    let speed = if r.speed > 0.0 { r.speed } else { 1.0 };
+    // Tono: se "acelera" el audio subiendo la frecuencia de muestreo (sube el tono)
+    // y después atempo compensa la velocidad.
+    let pitch = r.pitch.clamp(-12.0, 12.0);
+    let pf = 2f64.powf(pitch / 12.0);
+    if pitch.abs() > 0.01 {
+        *g += &format!(",aresample=48000,asetrate={:.0},aresample=48000", 48000.0 * pf);
+    }
+    for t in atempo_chain(speed / pf) {
+        *g += ",";
+        *g += &t;
+    }
+    speed
 }
 
 /// Devuelve el filtro (`-filter_complex`) y la duración resultante.
@@ -46,6 +79,8 @@ pub fn audio_filter(r: &AudioEditRequest) -> Result<(String, f64), String> {
         ),
         _ => ("[0:a]anull".to_string(), total),
     };
+    let speed = color_chain(&mut g, r);
+    let dur = dur / speed;
     if r.volume_db.abs() > 0.01 {
         g += &format!(",volume={:.1}dB", r.volume_db);
     }
@@ -96,9 +131,112 @@ pub fn audio_edit(app: AppHandle, req: AudioEditRequest) -> Result<(), String> {
     spawn_job(&app, req.id, "ffmpeg", args, output(Some(out)), progress)
 }
 
+// ---------------------------------------------------------------- unir audios
+
+#[derive(Deserialize, Default)]
+#[serde(rename_all = "camelCase")]
+pub struct JoinAudioRequest {
+    pub id: String,
+    pub inputs: Vec<String>,
+    pub out_dir: String,
+    pub format: String,
+    pub bitrate: Option<u32>,
+    /// Segundos de fundido cruzado entre pistas (0 = pegadas)
+    pub crossfade: f64,
+}
+
+/// Une las pistas en orden. `durations`: duración de cada una (para validar el fundido).
+/// Devuelve los argumentos y la duración total.
+pub fn join_audio_args(r: &JoinAudioRequest, durations: &[f64], out: &str) -> Result<(Vec<String>, f64), String> {
+    let n = r.inputs.len();
+    if n < 2 {
+        return Err("Agregá al menos dos audios para unir.".into());
+    }
+    let cf = r.crossfade.max(0.0);
+    if cf > 0.0 {
+        if let Some(i) = durations.iter().position(|d| *d <= cf * 1.05) {
+            return Err(format!("La pista {} dura menos que el fundido. Bajá los segundos de fundido.", i + 1));
+        }
+    }
+    let mut a = ffmpeg_base();
+    for p in &r.inputs {
+        a.extend(["-i".to_string(), p.clone()]);
+    }
+    // Todas las pistas al mismo formato, si no concat/acrossfade fallan.
+    let mut g: Vec<String> = (0..n)
+        .map(|i| format!("[{i}:a]aresample=48000,aformat=sample_fmts=fltp:channel_layouts=stereo[a{i}]"))
+        .collect();
+    if cf > 0.0 {
+        let mut cur = "[a0]".to_string();
+        for i in 1..n {
+            let out_label = if i == n - 1 { "[out]".to_string() } else { format!("[x{i}]") };
+            g.push(format!("{cur}[a{i}]acrossfade=d={cf:.2}:c1=tri:c2=tri{out_label}"));
+            cur = out_label;
+        }
+    } else {
+        let labels: String = (0..n).map(|i| format!("[a{i}]")).collect();
+        g.push(format!("{labels}concat=n={n}:v=0:a=1[out]"));
+    }
+    let ext = Path::new(out).extension().and_then(|e| e.to_str()).unwrap_or("mp3").to_string();
+    a.extend(["-filter_complex".into(), g.join(";"), "-map".into(), "[out]".into(), "-vn".into()]);
+    a.extend(codec(&ext, r.bitrate));
+    a.push(out.to_string());
+    let total = durations.iter().sum::<f64>() - cf * (n as f64 - 1.0);
+    Ok((a, total))
+}
+
+#[tauri::command]
+pub async fn join_audio(app: AppHandle, req: JoinAudioRequest) -> Result<(), String> {
+    let inputs = req.inputs.clone();
+    let durations: Vec<f64> = tauri::async_runtime::spawn_blocking(move || {
+        inputs
+            .iter()
+            .map(|p| {
+                let m = media_info_blocking(p)?;
+                if !m.has_audio {
+                    return Err(format!("{p} no tiene audio."));
+                }
+                m.duration.ok_or_else(|| format!("No se pudo leer la duración de {p}."))
+            })
+            .collect::<Result<Vec<_>, _>>()
+    })
+    .await
+    .map_err(|e| e.to_string())??;
+    let ext = if ["mp3", "m4a", "ogg", "opus", "wav", "flac"].contains(&req.format.as_str()) { req.format.as_str() } else { "mp3" };
+    let out = unique_path(Path::new(&req.out_dir), "audios_unidos", ext).to_string_lossy().into_owned();
+    let (args, total) = join_audio_args(&req, &durations, &out)?;
+    let progress = ffmpeg_progress(req.id.clone(), 0.0, Some(total.max(0.1)));
+    spawn_job(&app, req.id, "ffmpeg", args, output(Some(out)), progress)
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
+
+    #[test]
+    fn speed_and_pitch() {
+        let mut r = req("all", 0.0, 0.0);
+        r.speed = 2.0;
+        r.pitch = 12.0;
+        r.denoise = "light".into();
+        let (f, d) = audio_filter(&r).unwrap();
+        assert_eq!(d, 50.0);
+        assert!(f.contains("afftdn=nr=12"));
+        assert!(f.contains("asetrate=96000"));
+        // velocidad 2 / tono x2 = atempo 1 -> no hace falta atempo
+        assert!(!f.contains("atempo"));
+    }
+
+    #[test]
+    fn join_crossfade() {
+        let r = JoinAudioRequest { inputs: vec!["a.mp3".into(), "b.mp3".into(), "c.mp3".into()], crossfade: 2.0, ..Default::default() };
+        let (a, total) = join_audio_args(&r, &[10.0, 10.0, 10.0], "o.mp3").unwrap();
+        assert_eq!(total, 26.0);
+        let g = &a[a.iter().position(|x| x == "-filter_complex").unwrap() + 1];
+        assert!(g.contains("[a0][a1]acrossfade=d=2.00:c1=tri:c2=tri[x1]"));
+        assert!(g.ends_with("[x1][a2]acrossfade=d=2.00:c1=tri:c2=tri[out]"));
+        assert!(join_audio_args(&r, &[10.0, 1.0, 10.0], "o.mp3").is_err());
+    }
 
     fn req(mode: &str, s: f64, e: f64) -> AudioEditRequest {
         AudioEditRequest { input: "a.mp3".into(), out_dir: ".".into(), format: "mp3".into(), duration: 100.0, mode: mode.into(), sel_start: s, sel_end: e, ..Default::default() }
