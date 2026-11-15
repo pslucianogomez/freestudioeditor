@@ -1,6 +1,6 @@
 # Changelog
 
-## [Sin publicar]
+## [0.2.0] - 2026-11-15
 
 ### Agregado
 - **Efectos de video** (sección nueva): velocidad de ×0.25 a ×4 manteniendo el tono, quitar el audio, reemplazarlo o mezclarlo con música de fondo, formato vertical 9:16 / cuadrado / 4:5 / 16:9 (con fondo desenfocado, bandas negras o recortando), subtítulos quemados en la imagen (.srt/.ass/.vtt), estabilizar, brillo / contraste / saturación.
