@@ -5,6 +5,12 @@ App de escritorio para Windows (Mac y Linux en el roadmap), construida sobre [yt
 
 > *FreeEditorStudio es un nombre provisorio.*
 
+## Descargar
+
+**[⬇ Bajá la última versión para Windows](https://github.com/pslucianogomez/freestudioeditor/releases/latest)**: elegí el archivo `FreeEditorStudio_..._x64-setup.exe` en *Assets*. Se instala para tu usuario, sin pedir permisos de administrador. Requiere Windows 10 u 11 de 64 bits.
+
+Como el instalador todavía no está firmado, Windows puede mostrar *"Windows protegió su PC"*: tocá **Más información → Ejecutar de todas formas**.
+
 ## Qué hace hoy
 
 - **Descargar** video o solo audio desde YouTube y [más de mil sitios](https://github.com/yt-dlp/yt-dlp/blob/master/supportedsites.md): videos sueltos, playlists y canales, hasta 4K. Vista previa con miniatura, duración y las calidades reales de cada video con su tamaño.
