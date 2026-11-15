@@ -5,7 +5,7 @@ export type JobStatus = "running" | "done" | "error" | "cancelled";
 
 export interface Job {
   id: string;
-  type: "download" | "convert" | "edit" | "audio" | "record" | "photo";
+  type: "download" | "convert" | "edit" | "fx" | "audio" | "record" | "photo";
   title: string;
   status: JobStatus;
   percent: number;

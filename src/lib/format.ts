@@ -39,11 +39,11 @@ export function formatBytes(bytes: number): string {
   return mb < 1024 ? `${mb.toFixed(1)} MB` : `${(mb / 1024).toFixed(2)} GB`;
 }
 
-export const baseName =(p: string) => p.split(/[\\/]/).pop() ?? p;
+export const baseName = (p: string) => p.split(/[\\/]/).pop() ?? p;
 
 export const extOf = (p: string) => (baseName(p).split(".").pop() ?? "").toLowerCase();
 
-export const IMAGE_EXT = ["jpg", "jpeg", "png", "webp", "bmp", "tif", "tiff", "gif"];
+export const IMAGE_EXT = ["jpg", "jpeg", "png", "webp", "bmp", "tif", "tiff", "gif", "heic", "heif", "avif"];
 export const AUDIO_EXT = ["mp3", "m4a", "aac", "wav", "flac", "ogg", "opus", "wma"];
 export const VIDEO_EXT = ["mp4", "mkv", "webm", "avi", "mov", "wmv", "flv", "m4v", "mpg", "mpeg", "3gp", "ts", "vob"];
 export const MEDIA_EXT = [...VIDEO_EXT, ...AUDIO_EXT];

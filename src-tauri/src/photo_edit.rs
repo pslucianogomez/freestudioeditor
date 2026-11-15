@@ -227,8 +227,10 @@ fn prepare(r: &PhotoEditRequest) -> Result<Prepared, String> {
 pub async fn photo_preview(req: PhotoEditRequest) -> Result<String, String> {
     tauri::async_runtime::spawn_blocking(move || {
         let (size, text_file, font) = prepare(&req)?;
-        let dir = temp_dir()?.join("preview");
-        // Una sola vista previa a la vez: se borran las anteriores.
+        // Carpeta por "slot" (el id del pedido: "base" para la imagen original, "preview" para el
+        // resultado). Dentro de cada una se borran las vistas previas anteriores.
+        let slot: String = req.id.chars().filter(|c| c.is_ascii_alphanumeric()).take(20).collect();
+        let dir = temp_dir()?.join(format!("preview-{slot}"));
         let _ = std::fs::remove_dir_all(&dir);
         std::fs::create_dir_all(&dir).map_err(|e| e.to_string())?;
         let out = dir.join(format!("p-{}.jpg", stamp())).to_string_lossy().into_owned();

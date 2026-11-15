@@ -16,10 +16,12 @@ Como el instalador todavía no está firmado, Windows puede mostrar *"Windows pr
 - **Descargar** video o solo audio desde YouTube y [más de mil sitios](https://github.com/yt-dlp/yt-dlp/blob/master/supportedsites.md): videos sueltos, playlists y canales, hasta 4K. Vista previa con miniatura, duración y las calidades reales de cada video con su tamaño.
 - **Subtítulos**: elegir idiomas (del autor o automáticos), SRT o VTT, incrustarlos en el video o bajar solo los subtítulos.
 - **Convertir** a MP4, WebM, MKV, MP3, M4A, OGG, OPUS, WAV, FLAC, GIF animado y fotogramas JPG; resolución, calidad, bitrate y atajos por dispositivo (WhatsApp, celular, TV, web). Rotar, espejar y recortar.
-- **Editor de video**: unir varios videos, recortar cada tramo, dividir para sacar partes del medio, reordenar, con reproductor integrado.
-- **Editor de audio**: forma de onda, seleccionar y quedarse con un tramo o borrarlo, fundidos, volumen y normalización.
+- **Editor de video**: unir varios videos, recortar cada tramo, dividir para sacar partes del medio, reordenar y transiciones, con reproductor integrado.
+- **Efectos de video**: velocidad, quitar o cambiar la música, formato vertical o cuadrado para redes, subtítulos quemados, estabilizar y color.
+- **Editor de audio**: forma de onda, quedarse con un tramo o borrarlo, fundidos, volumen, normalizar, quitar ruido de fondo, velocidad, tono, y unir varios audios.
+- **Editor de fotos**: recortar, rotar, color y nitidez, marca de agua con texto o logo, con vista previa exacta.
 - **Grabar pantalla** en MP4, con micrófono opcional.
-- **Fotos**: cambiar tamaño y formato (JPG, PNG, WebP) por lote.
+- **Fotos por lote**: cambiar tamaño y formato (JPG, PNG, WebP) de muchas fotos a la vez.
 - Arrastrar y soltar archivos en cualquier parte de la ventana; botón "Pegar" para enlaces.
 - Cola de trabajos con progreso, cancelación y "abrir carpeta". Actualizar yt-dlp desde la app.
 

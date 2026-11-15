@@ -1,5 +1,17 @@
 # Changelog
 
+## [Sin publicar]
+
+### Agregado
+- **Efectos de video** (sección nueva): velocidad de ×0.25 a ×4 manteniendo el tono, quitar el audio, reemplazarlo o mezclarlo con música de fondo, formato vertical 9:16 / cuadrado / 4:5 / 16:9 (con fondo desenfocado, bandas negras o recortando), subtítulos quemados en la imagen (.srt/.ass/.vtt), estabilizar, brillo / contraste / saturación.
+- **Editor de fotos** (sección nueva): recortar con proporciones fijas, rotar y espejar, brillo / contraste / saturación / nitidez, estilos rápidos, marca de agua con texto o logo (posición, tamaño y opacidad). Vista previa exacta generada por FFmpeg. Abre HEIC/AVIF (se guardan como JPG).
+- **Editor de audio**: reducción de ruido de fondo, velocidad sin cambiar el tono, cambio de tono en semitonos, y modo **Unir varios audios** con fundido cruzado opcional.
+- **Editor de video**: transiciones entre tramos (fundido, fundido a negro, disolver, barrido, deslizar, círculo).
+- Pruebas contra FFmpeg real para todas las herramientas nuevas (rutas con espacios y comillas, textos con `:` y `%`, videos sin audio).
+
+### Cambiado
+- "Fotos" pasa a llamarse "Fotos por lote".
+
 ## [0.1.0] - 2026-11-15
 
 Primera versión pública.
