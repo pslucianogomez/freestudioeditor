@@ -2,7 +2,7 @@
 // (<nombre>-<target-triple>.exe). Uso: npm run fetch-binaries
 import { createHash } from "node:crypto";
 import { execFileSync } from "node:child_process";
-import { existsSync, mkdirSync, mkdtempSync, readFileSync, rmSync, renameSync, writeFileSync } from "node:fs";
+import { copyFileSync, existsSync, mkdirSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join, dirname } from "node:path";
 import { fileURLToPath } from "node:url";
@@ -43,9 +43,11 @@ if (force || !existsSync(ffmpeg)) {
   const tmp = mkdtempSync(join(tmpdir(), "ffmpeg-"));
   const zip = join(tmp, "ffmpeg.zip");
   await fetchTo(SOURCES.ffmpeg, zip);
-  // tar de Windows 10+ descomprime .zip
-  execFileSync("tar", ["-xf", zip, "-C", tmp], { stdio: "inherit" });
-  renameSync(join(tmp, "ffmpeg-master-latest-win64-gpl", "bin", "ffmpeg.exe"), ffmpeg);
+  // tar de Windows 10+ (bsdtar) descomprime .zip; se usa el del sistema y no el de Git, que no entiende .zip ni rutas "C:".
+  const tar = join(process.env.SystemRoot ?? "C:\\Windows", "System32", "tar.exe");
+  execFileSync(tar, ["-xf", zip, "-C", tmp], { stdio: "inherit" });
+  // copiar (no mover): en GitHub la carpeta temporal y el proyecto están en discos distintos.
+  copyFileSync(join(tmp, "ffmpeg-master-latest-win64-gpl", "bin", "ffmpeg.exe"), ffmpeg);
   rmSync(tmp, { recursive: true, force: true });
 } else console.log("ffmpeg ya está (usá --force para rebajar)");
 
