@@ -250,6 +250,7 @@ pub async fn photo_preview(req: PhotoEditRequest) -> Result<String, String> {
 
 #[tauri::command]
 pub async fn photo_edit(app: AppHandle, req: PhotoEditRequest) -> Result<(), String> {
+    crate::jobs::ensure_writable(&req.out_dir)?;
     let r = req.clone();
     let (size, text_file, font) = tauri::async_runtime::spawn_blocking(move || prepare(&r))
         .await
