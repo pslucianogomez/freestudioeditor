@@ -1,5 +1,11 @@
 # Changelog
 
+## [0.2.1] - 2026-11-16
+
+### Corregido
+- **Descargas**: con "Playlist / canal completo" marcado y un enlace que YouTube no reconoce como lista (por ejemplo un Mix), el archivo iba a la raíz del disco (`C:\`) y fallaba con "Permission denied". Ahora queda en la carpeta elegida.
+- Todas las herramientas comprueban antes de empezar que se pueda guardar en la carpeta de destino y, si no, lo avisan con un mensaje claro.
+
 ## [0.2.0] - 2026-11-15
 
 ### Agregado
