@@ -1,6 +1,6 @@
 [package]
 name = "freeeditorstudio"
-version = "0.2.0"
+version = "0.2.1"
 description = "Descargar, convertir y editar video y audio. Libre y gratis."
 license = "GPL-3.0-or-later"
 edition = "2021"
