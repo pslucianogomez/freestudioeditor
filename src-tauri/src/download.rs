@@ -100,6 +100,7 @@ pub fn download_args(r: &DownloadRequest) -> Vec<String> {
 
 #[tauri::command]
 pub fn download(app: AppHandle, req: DownloadRequest) -> Result<(), String> {
+    crate::jobs::ensure_writable(&req.out_dir)?;
     let id = req.id.clone();
     // Si no se descarga un archivo (solo subtítulos), "abrir carpeta" lleva a la carpeta de salida.
     let out = output(Some(req.out_dir.clone()));

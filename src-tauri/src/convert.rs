@@ -158,6 +158,7 @@ pub fn convert_args(r: &ConvertRequest) -> Result<(Vec<String>, String), String>
 
 #[tauri::command]
 pub fn convert(app: AppHandle, req: ConvertRequest) -> Result<(), String> {
+    crate::jobs::ensure_writable(&req.out_dir)?;
     let (args, out_path) = convert_args(&req)?;
     // Duración efectiva (considerando recorte) para el porcentaje.
     let start = req.start.as_deref().and_then(parse_hms).unwrap_or(0.0);
@@ -224,6 +225,7 @@ pub fn photo_args(r: &PhotoRequest) -> (Vec<String>, String) {
 
 #[tauri::command]
 pub fn photo(app: AppHandle, req: PhotoRequest) -> Result<(), String> {
+    crate::jobs::ensure_writable(&req.out_dir)?;
     let (args, out) = photo_args(&req);
     spawn_job(&app, req.id, "ffmpeg", args, output(Some(out)), |_, _, _| {})
 }

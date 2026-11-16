@@ -151,6 +151,7 @@ pub fn join_args(segs: &[Segment], w: u32, h: u32, crf_value: &str, out: &str, t
 
 #[tauri::command]
 pub async fn join_clips(app: AppHandle, req: JoinRequest) -> Result<(), String> {
+    crate::jobs::ensure_writable(&req.out_dir)?;
     if req.clips.is_empty() {
         return Err("Agregá al menos un tramo.".into());
     }

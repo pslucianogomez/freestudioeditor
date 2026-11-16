@@ -199,6 +199,7 @@ fn stage_subtitles(path: &str) -> Result<String, String> {
 
 #[tauri::command]
 pub async fn video_fx(app: AppHandle, req: VideoFxRequest) -> Result<(), String> {
+    crate::jobs::ensure_writable(&req.out_dir)?;
     let r = req.clone();
     let (info, subs) = tauri::async_runtime::spawn_blocking(move || -> Result<_, String> {
         let info = media_info_blocking(&r.input)?;

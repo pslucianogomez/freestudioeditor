@@ -126,6 +126,7 @@ pub fn audio_args(r: &AudioEditRequest) -> Result<(Vec<String>, String, f64), St
 
 #[tauri::command]
 pub fn audio_edit(app: AppHandle, req: AudioEditRequest) -> Result<(), String> {
+    crate::jobs::ensure_writable(&req.out_dir)?;
     let (args, out, dur) = audio_args(&req)?;
     let progress = ffmpeg_progress(req.id.clone(), 0.0, Some(dur.max(0.1)));
     spawn_job(&app, req.id, "ffmpeg", args, output(Some(out)), progress)
@@ -187,6 +188,7 @@ pub fn join_audio_args(r: &JoinAudioRequest, durations: &[f64], out: &str) -> Re
 
 #[tauri::command]
 pub async fn join_audio(app: AppHandle, req: JoinAudioRequest) -> Result<(), String> {
+    crate::jobs::ensure_writable(&req.out_dir)?;
     let inputs = req.inputs.clone();
     let durations: Vec<f64> = tauri::async_runtime::spawn_blocking(move || {
         inputs

@@ -68,6 +68,7 @@ pub async fn list_audio_devices() -> Vec<String> {
 
 #[tauri::command]
 pub fn record_screen(app: AppHandle, req: RecordRequest) -> Result<(), String> {
+    crate::jobs::ensure_writable(&req.out_dir)?;
     let out = unique_path(Path::new(&req.out_dir), &req.name, "mp4").to_string_lossy().into_owned();
     let args = record_args(&req, &out);
     let jid = req.id.clone();

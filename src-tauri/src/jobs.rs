@@ -67,6 +67,28 @@ pub fn hidden_command(path: &Path) -> std::process::Command {
     c
 }
 
+/// Comprueba que se pueda escribir en la carpeta de salida antes de arrancar un trabajo.
+/// Windows no deja escribir en la raíz de C:\ ni en "Archivos de programa" sin ser administrador,
+/// y sin esta comprobación el error llega tarde y en inglés.
+pub fn ensure_writable(dir: &str) -> Result<(), String> {
+    let d = Path::new(dir);
+    if dir.trim().is_empty() {
+        return Err("No hay carpeta de destino. Elegí una en Ajustes.".into());
+    }
+    std::fs::create_dir_all(d).map_err(|_| no_permission(dir))?;
+    let probe = d.join(format!(".freeeditorstudio-{}.tmp", std::process::id()));
+    std::fs::write(&probe, b"").map_err(|_| no_permission(dir))?;
+    let _ = std::fs::remove_file(&probe);
+    Ok(())
+}
+
+fn no_permission(dir: &str) -> String {
+    format!(
+        "No hay permiso para guardar en \"{dir}\". Windows protege carpetas como C:\\ o Archivos de programa. \
+         Elegí otra carpeta en Ajustes (por ejemplo Descargas o Documentos)."
+    )
+}
+
 /// Nombre de salida que no pisa archivos existentes.
 pub fn unique_path(dir: &Path, stem: &str, ext: &str) -> PathBuf {
     let mut p = dir.join(format!("{stem}.{ext}"));
@@ -246,5 +268,22 @@ mod tests {
         assert_eq!(parse_hms("1:00"), Some(60.0));
         assert_eq!(parse_hms("12.5"), Some(12.5));
         assert_eq!(parse_hms("N/A"), None);
+    }
+}
+
+#[cfg(test)]
+mod writable_tests {
+    use super::ensure_writable;
+
+    #[test]
+    fn carpeta_temporal_es_escribible() {
+        let d = std::env::temp_dir().join("fes writable 'test'");
+        assert!(ensure_writable(d.to_str().unwrap()).is_ok());
+        let _ = std::fs::remove_dir_all(d);
+    }
+
+    #[test]
+    fn carpeta_vacia_da_error_claro() {
+        assert!(ensure_writable("  ").unwrap_err().contains("Ajustes"));
     }
 }
