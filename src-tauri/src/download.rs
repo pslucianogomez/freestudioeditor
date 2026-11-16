@@ -64,7 +64,7 @@ pub fn download_args(r: &DownloadRequest) -> Vec<String> {
         r.out_dir.clone(),
     ];
     if r.playlist {
-        a.extend([s("--yes-playlist"), s("-o"), s("%(playlist_title|)s/%(title)s [%(id)s].%(ext)s")]);
+        a.extend([s("--yes-playlist"), s("-o"), s("%(playlist_title|.)s/%(title)s [%(id)s].%(ext)s")]);
     } else {
         a.extend([s("--no-playlist"), s("-o"), s("%(title)s [%(id)s].%(ext)s")]);
     }
@@ -317,6 +317,15 @@ mod tests {
             playlist: false,
             cookies_browser: None,
         }
+    }
+
+    /// Si el enlace no es una lista, `playlist_title` viene vacío: la ruta no puede empezar con "/"
+    /// (en Windows eso es la raíz del disco y saltea la carpeta elegida).
+    #[test]
+    fn plantilla_de_lista_no_va_a_la_raiz() {
+        let a = download_args(&DownloadRequest { playlist: true, ..req() });
+        let i = a.iter().position(|x| x == "-o").unwrap();
+        assert!(a[i + 1].starts_with("%(playlist_title|.)s/"), "{}", a[i + 1]);
     }
 
     #[test]
